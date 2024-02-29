@@ -1,6 +1,8 @@
 import pygame
 
-from pygame.locals import KEYDOWN, K_ESCAPE
+from bird import Bird
+
+from pygame.locals import QUIT, KEYDOWN, K_ESCAPE
 
 pygame.init()
 
@@ -10,38 +12,37 @@ screen = pygame.display.set_mode((width, height))
 pygame.display.set_caption("Flock Simulation")
 
 # Ball properties
-ball_radius = 20
-ball_color = (255, 0, 0)
-ball_speed = 5
+bird_amount = 5
+bird_radius = 20
+bird_color = (255, 0, 0)
+bird_speed = 5
 
-# Initial position
-ball_x, ball_y = width // 2, height // 2
+birds = [Bird(width // 2 + 30 * i, height // 2 + 30 * i, bird_radius, bird_color, bird_speed)
+         for i in range(bird_amount)]
 
+clock = pygame.time.Clock()
 running = True
-while running:
+
+def handle_events():
     for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            running = False
+        if event.type == QUIT or (event.type == KEYDOWN and event.key == K_ESCAPE):
+            return False
+    return True
 
-    # Update position
+while running:
+    running = handle_events()
+
     keys = pygame.key.get_pressed()
-    ball_x += (keys[pygame.K_RIGHT] - keys[pygame.K_LEFT]) * ball_speed
-    ball_y += (keys[pygame.K_DOWN] - keys[pygame.K_UP]) * ball_speed
+    for bird in birds:
+        bird.move(keys, (width, height))
 
-    # Check boundaries
-    ball_x = max(ball_radius, min(width - ball_radius, ball_x))
-    ball_y = max(ball_radius, min(height - ball_radius, ball_y))
-
-    # Backgroung
     screen.fill((255, 255, 255))
 
-    # Ball
-    pygame.draw.circle(screen, ball_color, (int(ball_x), int(ball_y)), ball_radius)
+    for bird in birds:
+        bird.draw(screen)
 
-    # Update display
     pygame.display.flip()
 
-    # Frame rate
-    pygame.time.Clock().tick(60)
+    clock.tick(60)
 
 pygame.quit()
