@@ -1,8 +1,13 @@
+"""
+Driver code for the simulation
+"""
+# pylint: disable=no-member
+
+import random
 import pygame
+import pygame.locals
 
 from bird import Bird
-
-from pygame.locals import QUIT, KEYDOWN, K_ESCAPE
 
 pygame.init()
 
@@ -12,29 +17,40 @@ screen = pygame.display.set_mode((width, height))
 pygame.display.set_caption("Flock Simulation")
 
 # Ball properties
-bird_amount = 5
-bird_radius = 20
-bird_color = (255, 0, 0)
-bird_speed = 5
+BIRD_AMOUNT = 100
+BIRD_SIZE = 5
+BIRD_COLOR = (255, 0, 0)
+BIRD_SPEED = 5
 
-birds = [Bird(width // 2 + 30 * i, height // 2 + 30 * i, bird_radius, bird_color, bird_speed)
-         for i in range(bird_amount)]
+birds = [Bird((random.randint(0, width), random.randint(0, height)),
+            BIRD_SIZE, BIRD_COLOR, BIRD_SPEED) for i in range(BIRD_AMOUNT)]
+
+RUNNING = True
 
 clock = pygame.time.Clock()
-running = True
+
 
 def handle_events():
+    """
+    Handle closing the simulation
+    """
     for event in pygame.event.get():
-        if event.type == QUIT or (event.type == KEYDOWN and event.key == K_ESCAPE):
+        if (event.type == pygame.locals.QUIT
+                or (event.type == pygame.locals.KEYDOWN and event.key == pygame.locals.K_ESCAPE)):
             return False
     return True
 
-while running:
-    running = handle_events()
+
+while RUNNING:
+    RUNNING = handle_events()
 
     keys = pygame.key.get_pressed()
     for bird in birds:
         bird.move(keys, (width, height))
+
+    for i in range(BIRD_AMOUNT):
+        for j in range(i + 1, BIRD_AMOUNT):
+            birds[i].avoid_colision(birds[j])
 
     screen.fill((255, 255, 255))
 
