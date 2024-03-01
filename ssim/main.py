@@ -7,23 +7,26 @@ import random
 import pygame
 import pygame.locals
 
+from typing import List
 from bird import Bird
 
 pygame.init()
 
 # Set up display
-width, height = 800, 600
-screen = pygame.display.set_mode((width, height))
+screen = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
+width, height = pygame.display.get_surface().get_size()
 pygame.display.set_caption("Flock Simulation")
 
-# Ball properties
-BIRD_AMOUNT = 100
-BIRD_SIZE = 5
-BIRD_COLOR = (255, 0, 0)
-BIRD_SPEED = 5
+# Bird properties
+bird_options = {
+    "AMOUNT": 200,
+    "SIZE": 5,
+    "COLOR": (255, 0, 0),
+}
 
-birds = [Bird((random.randint(0, width), random.randint(0, height)),
-            BIRD_SIZE, BIRD_COLOR, BIRD_SPEED) for i in range(BIRD_AMOUNT)]
+# Initial placement of th birds should be changed to follow flocking algorithm
+birds: List[Bird] = [Bird(random.randint(0, width), random.randint(0, height))
+                     for i in range(bird_options["AMOUNT"])]
 
 RUNNING = True
 
@@ -45,17 +48,12 @@ while RUNNING:
     RUNNING = handle_events()
 
     keys = pygame.key.get_pressed()
-    for bird in birds:
-        bird.move(keys, (width, height))
 
-    for i in range(BIRD_AMOUNT):
-        for j in range(i + 1, BIRD_AMOUNT):
-            birds[i].avoid_colision(birds[j])
-
-    screen.fill((255, 255, 255))
+    screen.fill((0, 0, 0))
 
     for bird in birds:
-        bird.draw(screen)
+        bird.update(flock=birds)
+        pygame.draw.circle(screen, (255, 255, 255), (int(bird.position.x), int(bird.position.y)), 3)
 
     pygame.display.flip()
 
