@@ -22,15 +22,16 @@ class Bird:
         x: x-coordinate of the bird
         y: y-coordinate of the bird
     """
-    def __init__(self, x, y):
+    def __init__(self, x, y, size):
         """
         Constructor
         """
         self.position = pygame.Vector2(x, y)
         self.velocity = pygame.Vector2(random.uniform(-1, 1), random.uniform(-1, 1))
         self.velocity.scale_to_length(MAX_SPEED)
+        self.size = size
 
-    def update(self, flock):
+    def update(self, flock, obstacles):
         self.position += self.velocity
 
         self.wrap_edges()
@@ -68,6 +69,8 @@ class Bird:
 
         self.velocity.scale_to_length(MAX_SPEED)
 
+        self.check_collisions(obstacles, flock)
+
     def wrap_edges(self):
         width, height = pygame.display.get_surface().get_size()
         if self.position.x < 0:
@@ -83,3 +86,12 @@ class Bird:
         dx = self.position.x - other.position.x
         dy = self.position.y - other.position.y
         return dx ** 2 + dy ** 2
+
+    def check_collisions(self, obstacles, flock):
+        for obstacle in obstacles:
+            dx = self.position[0] - obstacle.position[0]
+            dy = self.position[1] - obstacle.position[1]
+            distance_squared = dx ** 2 + dy ** 2
+            if distance_squared < (self.size + obstacle.radius) ** 2:
+                flock.remove(self)
+                return
