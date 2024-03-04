@@ -3,12 +3,11 @@ This class represents a single bird in a flock
 """
 # pylint: disable=no-member
 from __future__ import annotations
-from typing import Tuple
+from typing import List
 
-import math
+import random
 import pygame
 import pygame.locals
-import random
 
 NUM_ENTITIES = 100
 MAX_SPEED = 2
@@ -19,8 +18,9 @@ SEPARATION_DISTANCE = 25
 class Bird:
     """
     Attributes:
-        x: x-coordinate of the bird
-        y: y-coordinate of the bird
+        position: bird's position vector
+        velocity: bird's velocity vector
+        size: bird's hit box size
     """
     def __init__(self, x, y, size):
         """
@@ -31,7 +31,10 @@ class Bird:
         self.velocity.scale_to_length(MAX_SPEED)
         self.size = size
 
-    def update(self, flock, obstacles):
+    def update(self, flock: List[Bird], obstacles) -> None:
+        """
+        Update bird's position using flocking algorithm
+        """
         self.position += self.velocity
 
         self.wrap_edges()
@@ -71,7 +74,10 @@ class Bird:
 
         self.check_collisions(obstacles, flock)
 
-    def wrap_edges(self):
+    def wrap_edges(self) -> None:
+        """
+        Move the bird to the other side of the screen if it goes off the boundaries
+        """
         width, height = pygame.display.get_surface().get_size()
         if self.position.x < 0:
             self.position.x = width
@@ -82,12 +88,18 @@ class Bird:
         if self.position.y > height:
             self.position.y = 0
 
-    def distance_to(self, other):
+    def distance_to(self, other: Bird) -> float:
+        """
+        Calculate distance between two birds
+        """
         dx = self.position.x - other.position.x
         dy = self.position.y - other.position.y
         return dx ** 2 + dy ** 2
 
-    def check_collisions(self, obstacles, flock):
+    def check_collisions(self, obstacles, flock: List[Bird]) -> None:
+        """
+        Check if a bird collided with an obstacle, if so, remove it from the list representing flock
+        """
         for obstacle in obstacles:
             dx = self.position[0] - obstacle.position[0]
             dy = self.position[1] - obstacle.position[1]

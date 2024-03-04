@@ -3,10 +3,9 @@ This class represents an obstacle
 """
 from __future__ import annotations
 
-import math
-
 import pygame
 import pygame.locals
+
 
 class Obstacle:
     """
@@ -19,6 +18,10 @@ class Obstacle:
         self.screen = screen
         self.radius = 100
 
-    def draw(self):
+    def draw(self) -> None:
+        """
+        Draw obstacle into the screen
+        :return:
+        """
         pygame.draw.circle(self.screen, (0, 255, 0),(int(self.position[0]),
                             int(self.position[1])), self.radius)
