@@ -43,9 +43,6 @@ def handle_events():
         if (event.type == pygame.locals.QUIT
                 or (event.type == pygame.locals.KEYDOWN and event.key == pygame.locals.K_ESCAPE)):
             return False
-        elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
-            mouse_x, mouse_y = pygame.mouse.get_pos()
-            obstacles.append(Obstacle(mouse_x, mouse_y, screen))
 
     return True
 
@@ -56,6 +53,9 @@ while RUNNING:
     keys = pygame.key.get_pressed()
 
     screen.fill((0, 0, 0))
+
+    obstacles.append(Obstacle(250, 250, screen))
+    obstacles.append(Obstacle(750, 750, screen))
 
     for bird in birds:
         bird.update(flock=birds, obstacles=obstacles)
