@@ -14,6 +14,7 @@ MAX_SPEED = 2
 PERCEPTION_RADIUS = 50
 SEPARATION_DISTANCE = 25
 
+COLLISION_EVENT = pygame.USEREVENT + 1
 
 class Bird:
     """
@@ -106,4 +107,6 @@ class Bird:
             distance_squared = dx ** 2 + dy ** 2
             if distance_squared < (self.size + obstacle.radius) ** 2:
                 flock.remove(self)
+                pygame.event.post(pygame.event.Event(COLLISION_EVENT))
                 return
+            
