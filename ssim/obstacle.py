@@ -13,10 +13,10 @@ class Obstacle:
         x: x-coordinate of the obstacle's center
         y: y-coordinate of the obstacle's center
     """
-    def __init__(self, x, y, screen):
+    def __init__(self, x, y, radius, screen):
         self.position = (x, y)
         self.screen = screen
-        self.radius = 100
+        self.radius = radius
 
     def draw(self) -> None:
         """
