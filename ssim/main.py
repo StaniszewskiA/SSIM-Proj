@@ -11,6 +11,8 @@ from typing import List
 from bird import Bird
 from obstacle import Obstacle
 
+VISUALISE_PERCEPTION_RADIUS: bool = True
+
 pygame.init()
 
 # Set up display
@@ -20,14 +22,15 @@ pygame.display.set_caption("Flock Simulation")
 
 # Bird properties
 bird_options = {
-    "AMOUNT": 300,
+    "AMOUNT": 150,
     "SIZE": 5,
     "COLOR": (255, 0, 0),
 }
 
 # Initial placement of th birds should be changed to follow flocking algorithm
-birds: List[Bird] = [Bird(random.randint(0, width), random.randint(0, height), bird_options["SIZE"])
-                     for i in range(bird_options["AMOUNT"])]
+birds: List[Bird] = [Bird(random.randint(0, width), random.randint(0, height), bird_options["SIZE"],
+                          perception_radius=50) for i in range(bird_options["AMOUNT"])]
+
 obstacles = []
 
 RUNNING = True
@@ -60,6 +63,10 @@ while RUNNING:
     for bird in birds:
         bird.update(flock=birds, obstacles=obstacles)
         pygame.draw.circle(screen, (255, 255, 255), (int(bird.position.x), int(bird.position.y)), 3)
+
+        if VISUALISE_PERCEPTION_RADIUS:
+            pygame.draw.circle(screen, (255, 0, 0), (int(bird.position.x), int(bird.position.y)),
+                               bird.perception_radius, 1)
 
     for obstacle in obstacles:
         obstacle.draw()
