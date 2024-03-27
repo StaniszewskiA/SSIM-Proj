@@ -9,6 +9,7 @@ bird_options = {
     "AMOUNT": 300,
     "SIZE": 5,
     "COLOR": (255, 0, 0),
+    "PERCEPTION_RADIUS": 25,
 }
 
 obstacle_options = {

@@ -11,7 +11,6 @@ import pygame.locals
 
 NUM_ENTITIES = 100
 MAX_SPEED = 2
-PERCEPTION_RADIUS = 50
 SEPARATION_DISTANCE = 25
 
 COLLISION_EVENT = pygame.USEREVENT + 1
@@ -23,14 +22,15 @@ class Bird:
         velocity: bird's velocity vector
         size: bird's hit box size
     """
-    def __init__(self, x, y, size):
+    def __init__(self, x: int, y: int, size: int, perception_radius: int):
         """
         Constructor
         """
         self.position = pygame.Vector2(x, y)
         self.velocity = pygame.Vector2(random.uniform(-1, 1), random.uniform(-1, 1))
         self.velocity.scale_to_length(MAX_SPEED)
-        self.size = size
+        self.size: int = size
+        self.perception_radius: int = perception_radius
 
     def update(self, flock: List[Bird], obstacles) -> None:
         """
@@ -51,7 +51,7 @@ class Bird:
 
             distance_squared = self.distance_to(other)
 
-            if distance_squared < PERCEPTION_RADIUS ** 2:
+            if distance_squared < self.perception_radius ** 2:
                 avg_velocity += other.velocity
                 avg_position += other.position
 
