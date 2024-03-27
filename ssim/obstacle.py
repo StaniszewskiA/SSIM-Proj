@@ -17,11 +17,3 @@ class Obstacle:
         self.position = (x, y)
         self.screen = screen
         self.radius = radius
-
-    def draw(self) -> None:
-        """
-        Draw obstacle into the screen
-        :return:
-        """
-        pygame.draw.circle(self.screen, (0, 255, 0),(int(self.position[0]),
-                            int(self.position[1])), self.radius)

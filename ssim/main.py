@@ -43,7 +43,6 @@ while RUNNING:
     environment.handle_events()
 
     environment.draw_obstacles()
-
     environment.update_birds()
 
     environment.draw_birds()
