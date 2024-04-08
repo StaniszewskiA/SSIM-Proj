@@ -1,2 +1,2 @@
-**TODO**
-Fix typos in the first report.
+# TODO:
+Omijanie przeszkód
