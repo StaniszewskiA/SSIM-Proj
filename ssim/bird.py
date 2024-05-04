@@ -3,9 +3,10 @@ This class represents a single bird in a flock
 """
 # pylint: disable=no-member
 from __future__ import annotations
-from typing import List
+from typing import List, Dict
 from obstacle import Obstacle
 
+import time
 import random
 import pygame
 import pygame.locals
@@ -24,7 +25,7 @@ class Bird:
         velocity: bird's velocity vector
         size: bird's hit box size
     """
-    def __init__(self, x, y, size, perception_radius):
+    def __init__(self, x, y, size, perception_radius: List[int]):
         """
         Constructor
         """
@@ -32,7 +33,12 @@ class Bird:
         self.velocity = pygame.Vector2(random.uniform(-1, 1), random.uniform(-1, 1))
         self.velocity.scale_to_length(MAX_SPEED)
         self.size = size
-        self.perception_radius = perception_radius
+        self.perception_radius_flock: int = perception_radius[0]
+        self.perception_radius_obstacle: int = perception_radius[1]
+        self.has_neighbors: bool = False
+        self.approaching_obstacle: bool = False
+        self.last_projection_time = 0
+        self.projection_cooldown: float = 0.1
 
     def update(self, flock: List[Bird], obstacles) -> None:
         """
@@ -53,7 +59,7 @@ class Bird:
 
             distance_squared = self.distance_to(other)
 
-            if distance_squared < self.perception_radius ** 2:
+            if distance_squared < self.perception_radius_flock ** 2:
                 avg_velocity += other.velocity
                 avg_position += other.position
 
@@ -65,6 +71,7 @@ class Bird:
                 num_neighbors += 1
 
         if num_neighbors > 0:
+            self.has_neighbors = True
             avg_velocity /= num_neighbors
             avg_position /= num_neighbors
             avg_separation /= num_neighbors
@@ -73,8 +80,7 @@ class Bird:
         self.velocity += avg_position * 0.01
         self.velocity += avg_separation * 0.03
 
-        self.avoid_obstacles(obstacles)
-
+        self.check_collisions(obstacles, flock)
         self.dodge_obstacles(obstacles)
 
         self.velocity.scale_to_length(MAX_SPEED)
@@ -107,26 +113,38 @@ class Bird:
         """
         Check if a bird collided with an obstacle, if so, remove it from the list representing flock
         """
-        for obstacle in obstacles:
-            dx = self.position[0] - obstacle.position[0]
-            dy = self.position[1] - obstacle.position[1]
-            distance_squared = dx ** 2 + dy ** 2
-            if distance_squared < (self.size + obstacle.radius) ** 2:
-                flock.remove(self)
-                pygame.event.post(pygame.event.Event(COLLISION_EVENT))
-                return
-    
-    def avoid_obstacles(self, obstacles:List[Obstacle]):
-        for obstacle in obstacles:
-            dx = obstacle.position[0] - self.position[0]
-            dy = obstacle.position[1] - self.position[1]
-            self.velocity += pygame.Vector2(random.uniform(0.001, 0.005)*dx, random.uniform(0.001,0.005)*dy)
+        if self in flock:
+            for obstacle in obstacles:
+                dx = self.position[0] - obstacle.position[0]
+                dy = self.position[1] - obstacle.position[1]
+                distance_squared = dx ** 2 + dy ** 2
+                if distance_squared <= (self.size + obstacle.radius) ** 2:
+                    flock.remove(self)
+                    pygame.event.post(pygame.event.Event(COLLISION_EVENT))
+                    return
 
-    def dodge_obstacles(self, obstacles:List[Obstacle]):
-        for obstacle in obstacles:
-            dx = obstacle.position[0] - self.position[0]
-            dy = obstacle.position[1] - self.position[1]
-            distance_to_obstacle = math.sqrt(dx ** 2 + dy ** 2) - obstacle.radius
-            if distance_to_obstacle <= self.perception_radius:
-                self.velocity += pygame.Vector2(random.uniform(-1,-2)*dx, random.uniform(-1,-2)*dy)
+
+    def dodge_obstacles(self, obstacles: List[Obstacle]) -> None:
+        """
+        Adjust velocity vector if obstacle is within perception radius
+        """
+        current_time = time.time()
+
+        if current_time - self.last_projection_time >= self.projection_cooldown:
+            for obstacle in obstacles:
+                dx = obstacle.position[0] - self.position[0]
+                dy = obstacle.position[1] - self.position[1]
+                distance_to_obstacle = math.sqrt(dx ** 2 + dy ** 2) - obstacle.radius
+                if distance_to_obstacle <= self.perception_radius_obstacle:
+                    if not self.approaching_obstacle:
+                        self.approaching_obstacle = True
+
+                    if self.approaching_obstacle:
+                        to_obstacle = pygame.Vector2(dx, dy)
+                        to_obstacle.normalize_ip()
+                        projection = self.velocity.dot(to_obstacle)
+                        if projection > 0:
+                            self.velocity -= 2 * projection * to_obstacle
+                            self.approaching_obstacle = False
+                            self.last_projection_time = current_time
             

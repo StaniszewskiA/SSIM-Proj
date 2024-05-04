@@ -1,59 +1,74 @@
 import pygame
 import pygame.locals
+import os
+import random
 from environment import Environment
+from pylint_runner import run_pylint_on_folder
 
-pygame.init()
+def main():
+    pygame.init()
 
-# Bird properties
-bird_options = {
-    "AMOUNT": 300,
-    "SIZE": 5,
-    "COLOR": (255, 0, 0),
-    "PERCEPTION_RADIUS": 25,
-}
+    DISPLAY_INFO = pygame.display.Info()
+    RUNNING = True
 
-obstacle_options = {
-    "RADIUS" : 100,
-    "COLOR" : (0, 255, 0),
-    "POSITIONS": [(250, 250), (750, 750)]
-}
+    # Bird properties
+    bird_options = {
+        "AMOUNT": 100,
+        "SIZE": 5,
+        "COLOR": (255, 0, 0),
+        "PERCEPTION_RADIUS": [25, 75],
+    }
 
-screen_options = {
-    'WIDTH' : 1366,
-    'HEIGHT' : 768
-}
+    min_x = 0
+    max_x = 1366
+    min_y = 0
+    max_y = 768
+    random_positions = [(random.randint(min_x, max_x), random.randint(min_y, max_y)) for _ in range(10)]
 
-environment = Environment(
-    bird_options=bird_options,
-    obstacle_options=obstacle_options,
-    screen_options=screen_options,
-    clock=pygame.time.Clock())
+    # Obstacle properties
+    obstacle_options = {
+        "RADIUS" : 50,
+        "COLOR" : (0, 255, 0),
+        "POSITIONS": random_positions
+    }
 
-environment.start()
+    # Screen properties
+    screen_options = {
+        'WIDTH' : 1366,
+        'HEIGHT' : 768
+    }
 
-RUNNING = True
+    # Environment properties
+    environment = Environment(
+        bird_options=bird_options,
+        obstacle_options=obstacle_options,
+        screen_options=screen_options,
+        clock=pygame.time.Clock())
 
-while RUNNING:
-    environment.screen.fill((0,0,0))
+    environment.start()
 
-    RUNNING = environment.running
+    while RUNNING:
+        environment.screen.fill((0,0,0))
 
-    environment.check_keys()
+        RUNNING = environment.running
 
-    environment.handle_events()
+        environment.check_keys()
 
-    environment.draw_obstacles()
+        environment.handle_events()
+
+        environment.draw_obstacles()
+        
+        environment.update_birds()
+
+        environment.draw_birds()
+
+        pygame.display.flip()
+
+        environment.clock.tick(60)
+
+    pygame.quit()
     
-    environment.update_birds()
-
-    environment.draw_birds()
-
-    pygame.display.flip()
-
-    environment.clock.tick(60)
-
-pygame.quit()
-    
-
-
-
+if __name__ == "__main__":
+    #current_folder = os.path.dirname(os.path.abspath(__file__))
+    #run_pylint_on_folder(current_folder)
+    main()

@@ -3,7 +3,7 @@ import random
 
 from bird import Bird, COLLISION_EVENT
 from obstacle import Obstacle
-from typing import List, Tuple, Dict
+from typing import List, Dict
 
 
 class Environment():
@@ -14,6 +14,9 @@ class Environment():
             screen_options:Dict, 
             clock:pygame.time.Clock
             ):
+        """
+        Constructor
+        """
         self.flock = []
         self.bird_options = bird_options
         self.obstacles = []
@@ -23,9 +26,15 @@ class Environment():
         self.screen = pygame.display.set_mode((self.screen_options['WIDTH'], self.screen_options['HEIGHT']))
         self.running = True
         self.keys = None
-        self.visualize_perception_radius: bool = True
+        self.visualize_perception_radius_flock: bool = True
+        self.visualize_perception_radius_obstacle: bool = False
+        self.reset_cooldown: int = 1000
+        self.last_reset_time: int = 0
     
     def setup_display(self):
+        """
+        Setting up the display
+        """
         pygame.display.set_caption("Flock simulation")
         return
     
@@ -64,7 +73,7 @@ class Environment():
             )
 
 
-    def spawn_new_bird(self, x:float, y:float, size:float, perception_radius:int):
+    def spawn_new_bird(self, x:float, y:float, size:float, perception_radius: List[int]):
         """
         Spawn new birds
         """
@@ -87,9 +96,20 @@ class Environment():
                 (255, 255, 255), 
                 (int(bird.position.x), int(bird.position.y)), 
                 bird.size)
-            if self.visualize_perception_radius:
-                pygame.draw.circle(self.screen, (255, 0, 0), (int(bird.position.x), int(bird.position.y)),
-                                   bird.perception_radius, 1)
+            if self.visualize_perception_radius_flock:
+                if bird.has_neighbors:
+                    pygame.draw.circle(self.screen, (0, 255, 0), (int(bird.position.x), int(bird.position.y)),
+                                    bird.perception_radius_flock, 1)
+                else:
+                    pygame.draw.circle(self.screen, (255, 0, 0), (int(bird.position.x), int(bird.position.y)),
+                                    bird.perception_radius_flock, 1)
+            if self.visualize_perception_radius_obstacle:
+                if not bird.approaching_obstacle:
+                    pygame.draw.circle(self.screen, (0, 255, 0), (int(bird.position.x), int(bird.position.y)),
+                                        bird.perception_radius_obstacle, 1)
+                else: 
+                    pygame.draw.circle(self.screen, (255, 0, 0), (int(bird.position.x), int(bird.position.y)),
+                                        bird.perception_radius_obstacle, 1)
     
     def draw_obstacles(self):
         for obstacle in self.obstacles:
@@ -101,3 +121,15 @@ class Environment():
     
     def check_keys(self):
         self.keys = pygame.key.get_pressed()
+        if self.keys[pygame.K_r]:
+            current_time = pygame.time.get_ticks()
+            if current_time - self.reset_cooldown > self.last_reset_time:
+                self.reset_simulation()
+                self.last_reset_time = current_time
+
+
+    def reset_simulation(self):
+        self.flock.clear()
+        self.obstacles.clear()
+
+        self.start()

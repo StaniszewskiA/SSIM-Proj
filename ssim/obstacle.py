@@ -2,11 +2,13 @@
 This class represents an obstacle
 """
 from __future__ import annotations
+from dataclasses import dataclass
 
 import pygame
 import pygame.locals
 
 
+@dataclass
 class Obstacle:
     """
     Attributes:
