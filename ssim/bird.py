@@ -4,10 +4,12 @@ This class represents a single bird in a flock
 # pylint: disable=no-member
 from __future__ import annotations
 from typing import List
+from obstacle import Obstacle
 
 import random
 import pygame
 import pygame.locals
+import math
 
 NUM_ENTITIES = 100
 MAX_SPEED = 2
@@ -22,15 +24,15 @@ class Bird:
         velocity: bird's velocity vector
         size: bird's hit box size
     """
-    def __init__(self, x: int, y: int, size: int, perception_radius: int):
+    def __init__(self, x, y, size, perception_radius):
         """
         Constructor
         """
         self.position = pygame.Vector2(x, y)
         self.velocity = pygame.Vector2(random.uniform(-1, 1), random.uniform(-1, 1))
         self.velocity.scale_to_length(MAX_SPEED)
-        self.size: int = size
-        self.perception_radius: int = perception_radius
+        self.size = size
+        self.perception_radius = perception_radius
 
     def update(self, flock: List[Bird], obstacles) -> None:
         """
@@ -71,6 +73,10 @@ class Bird:
         self.velocity += avg_position * 0.01
         self.velocity += avg_separation * 0.03
 
+        self.avoid_obstacles(obstacles)
+
+        self.dodge_obstacles(obstacles)
+
         self.velocity.scale_to_length(MAX_SPEED)
 
         self.check_collisions(obstacles, flock)
@@ -109,4 +115,18 @@ class Bird:
                 flock.remove(self)
                 pygame.event.post(pygame.event.Event(COLLISION_EVENT))
                 return
+    
+    def avoid_obstacles(self, obstacles:List[Obstacle]):
+        for obstacle in obstacles:
+            dx = obstacle.position[0] - self.position[0]
+            dy = obstacle.position[1] - self.position[1]
+            self.velocity += pygame.Vector2(random.uniform(0.001, 0.005)*dx, random.uniform(0.001,0.005)*dy)
+
+    def dodge_obstacles(self, obstacles:List[Obstacle]):
+        for obstacle in obstacles:
+            dx = obstacle.position[0] - self.position[0]
+            dy = obstacle.position[1] - self.position[1]
+            distance_to_obstacle = math.sqrt(dx ** 2 + dy ** 2) - obstacle.radius
+            if distance_to_obstacle <= self.perception_radius:
+                self.velocity += pygame.Vector2(random.uniform(-1,-2)*dx, random.uniform(-1,-2)*dy)
             
