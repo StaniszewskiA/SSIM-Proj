@@ -36,7 +36,7 @@ class Bird:
         self.perception_radius_flock: int = perception_radius[0]
         self.perception_radius_obstacle: int = perception_radius[1]
         self.has_neighbors: bool = False
-        self.approaching_obstacle: bool = False
+        self.approaching_obstacle: bool = True
         self.last_projection_time = 0
         self.projection_cooldown: float = 0.1
 

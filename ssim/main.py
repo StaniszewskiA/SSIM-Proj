@@ -13,7 +13,7 @@ def main():
 
     # Bird properties
     bird_options = {
-        "AMOUNT": 100,
+        "AMOUNT": 2,
         "SIZE": 5,
         "COLOR": (255, 0, 0),
         "PERCEPTION_RADIUS": [25, 75],

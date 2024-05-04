@@ -26,8 +26,8 @@ class Environment():
         self.screen = pygame.display.set_mode((self.screen_options['WIDTH'], self.screen_options['HEIGHT']))
         self.running = True
         self.keys = None
-        self.visualize_perception_radius_flock: bool = True
-        self.visualize_perception_radius_obstacle: bool = False
+        self.visualize_perception_radius_flock: bool = False
+        self.visualize_perception_radius_obstacle: bool = True
         self.reset_cooldown: int = 1000
         self.last_reset_time: int = 0
     
