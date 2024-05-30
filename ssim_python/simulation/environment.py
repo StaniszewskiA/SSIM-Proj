@@ -4,15 +4,17 @@ import random
 from bird import Bird, COLLISION_EVENT
 from obstacle import Obstacle
 from typing import List, Dict
-
+from models.BirdOptions import BirdOptions
+from models.ObstacleOptions import ObstacleOptions
+from models.DisplayOptions import DisplayOptions
 
 class Environment():
     def __init__(
             self, 
-            bird_options:Dict, 
-            obstacle_options:Dict,
-            screen_options:Dict, 
-            clock:pygame.time.Clock
+            bird_options: BirdOptions, 
+            obstacle_options: ObstacleOptions,
+            display_options: DisplayOptions, 
+            clock: pygame.time.Clock
             ):
         """
         Constructor
@@ -22,11 +24,12 @@ class Environment():
         self.obstacles = []
         self.obstacle_options = obstacle_options
         self.clock = clock
-        self.screen_options = screen_options
-        self.screen = pygame.display.set_mode((self.screen_options['WIDTH'], self.screen_options['HEIGHT']))
+        self.display_options = display_options
+        self.screen = pygame.display.set_mode((self.display_options.max_x, 
+                                               self.display_options.max_y))
         self.running = True
         self.keys = None
-        self.visualize_perception_radius_flock: bool = False
+        self.visualize_perception_radius_flock: bool = True
         self.visualize_perception_radius_obstacle: bool = True
         self.reset_cooldown: int = 1000
         self.last_reset_time: int = 0
@@ -48,27 +51,27 @@ class Environment():
                 self.running = False
             elif event.type == COLLISION_EVENT:
                 self.spawn_new_bird(
-                    x = random.randint(0, self.screen_options['WIDTH']),
-                    y = random.randint(0, self.screen_options['HEIGHT']),
-                    size=self.bird_options['SIZE'],
-                    perception_radius=self.bird_options['PERCEPTION_RADIUS']
+                    x = random.randint(0, self.display_options.max_x),
+                    y = random.randint(0, self.display_options.max_y),
+                    size=self.bird_options.SIZE,
+                    perception_radius=self.bird_options.PERCEPTION_RADIUS
                 )
 
     def start(self):
         self.setup_display()
 
-        for _ in range(self.bird_options['AMOUNT']):
+        for _ in range(self.bird_options.AMOUNT):
             self.spawn_new_bird(
-                x = random.randint(0, self.screen_options['WIDTH']),
-                y = random.randint(0, self.screen_options['HEIGHT']),
-                size = self.bird_options['SIZE'],
-                perception_radius = self.bird_options['PERCEPTION_RADIUS']
+                x = random.randint(0, self.display_options.max_x),
+                y = random.randint(0, self.display_options.max_y),
+                size = self.bird_options.SIZE,
+                perception_radius = self.bird_options.PERCEPTION_RADIUS
             )
         
-        for i in range(len(self.obstacle_options['POSITIONS'])):
+        for i in range(len(self.obstacle_options.POSITIONS)):
             self.spawn_new_obstacle(
-                x = self.obstacle_options['POSITIONS'][i][0],
-                y = self.obstacle_options['POSITIONS'][i][1],
+                x = self.obstacle_options.POSITIONS[i][0],
+                y = self.obstacle_options.POSITIONS[i][1],
                 screen = self.screen
             )
 
@@ -83,7 +86,7 @@ class Environment():
         """
         Spawn new obstacle
         """
-        self.obstacles.append(Obstacle(x, y, self.obstacle_options['RADIUS'], screen))
+        self.obstacles.append(Obstacle(x, y, self.obstacle_options.RADIUS, screen))
 
     def update_birds(self):
         for bird in self.flock:
@@ -115,7 +118,7 @@ class Environment():
         for obstacle in self.obstacles:
             pygame.draw.circle(
                 self.screen, 
-                (self.obstacle_options['COLOR']), 
+                (self.obstacle_options.RADIUS), 
                 (obstacle.position[0], obstacle.position[1]), 
                 obstacle.radius)
     
