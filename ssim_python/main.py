@@ -3,7 +3,7 @@ import pygame.locals
 import os
 import random
 from environment import Environment
-from pylint_runner import run_pylint_on_folder
+from ssim_python.utils.pylint_runner import run_pylint_on_folder
 
 from models.BirdOptions import BirdOptions
 from models.DisplayOptions import DisplayOptions
@@ -38,7 +38,7 @@ def main():
     # Obstacle properties
     obstacle_options = ObstacleOptions(
         RADIUS = 50,
-        COLOR = (255, 0, 0),
+        COLOR = (0, 0, 0),
         POSITIONS = random_positions
     )
 

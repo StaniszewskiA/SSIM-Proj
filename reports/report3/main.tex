@@ -1,0 +1,133 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[polish]{babel}
+\usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage{hyperref}
+\usepackage{geometry}
+\usepackage{fancyhdr}
+\usepackage{titling}
+\usepackage{natbib}
+\usepackage{listings}
+\usepackage{amsmath}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{listings}
+\usepackage{color}
+\usepackage{geometry}
+\usepackage{float} % pakiet do bardziej precyzyjnego 
+\geometry{margin=1in}
+\usepackage{amsmath}
+\usepackage{hyperref}
+\definecolor{codegreen}{rgb}{0,0.6,0}
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codepurple}{rgb}{0.58,0,0.82}
+\definecolor{backcolour}{rgb}{0.95,0.95,0.92}
+\usepackage[T1]{fontenc}
+
+\title{Modelowanie i Symulacja Systemów - Algorytm Stadny}
+\author{Dariusz Królicki, Adam Staniszewski}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+\section{Wprowadzenie}
+Algorytm stadny (flocking algorithm) został po raz pierwszy zaproponowany przez Craiga Reynoldsa w 1986 roku. Reynolds opracował ten algorytm, aby symulować realistyczne zachowanie stad zwierząt, takich jak ptaki lub ryby, w środowisku komputerowym. Oparty jest na trzech podstawowych zasadach: separacji, kohezji i wyrównaniu. Separacja zapobiega kolizjom między osobnikami, kohezja utrzymuje grupę razem, a wyrównanie pozwala poszczególnym osobnikom na synchronizację swojego ruchu z sąsiadami.\\
+
+Algorytm stadny znalazł szerokie zastosowanie nie tylko w grafice komputerowej i animacji, ale także w robotyce, gdzie wykorzystywany jest do sterowania grupami dronów lub robotów mobilnych. Ponadto, jego zasady są stosowane w modelowaniu ruchu tłumu oraz analizie zachowań społecznych różnych gatunków zwierząt. Dzięki swojej prostocie i efektywności, algorytm stadny stał się podstawowym narzędziem w badaniach nad systemami wieloagentowymi i złożonymi systemami adaptacyjnymi.
+\section{Podstawy teoretyczne}
+Jak wspomniano, algorytm opiera się na trzech zasadach: separacji, kohezji oraz wyrównaniu. Poniżej przedstawiono wzory umożliwiające opis tych zasad.
+\subsection{Separacja}
+Celem separacji jest unikanie kolizji między agentami. Każdy agent oblicza siłę separacji, która jest wektorem przeciwnym do wektora pozycji najbliższych sąsiadów. Matematycznie można to wyrazić jako:
+\begin{equation}
+    \mathbf{S}_i = - \sum_{j \in N_i} (\mathbf{p}_j - \mathbf{p}_i)
+\end{equation}
+gdzie:
+\begin{itemize}
+    \item $S_{i}$ to wektor separacji dla agenta \textit{i}
+    \item $N_{i}$ to zbiór sąsiadów agenta \textit{i}
+    \item $p_{j}$ to pozycja sąsiada \textit{j}
+    \item $p_{i}$ to pozycja agenta \textit{i}
+\end{itemize}
+
+\subsection{Kohezja}
+Celem kohezji jest utrzymanie grupy razem poprzez przesuwanie się agentów w kierunku środka masy ich sąsiadów. Środek masy można obliczyć jako średnią pozycję sąsiadów, a siłę kohezji jako wektor prowadzący do tego środka:
+\begin{equation}
+    \mathbf{C}_i = \left( \frac{1}{|N_i|} \sum_{j \in N_i} \mathbf{p}_j \right) - \mathbf{p}_i
+\end{equation}
+gdzie:
+\begin{itemize}
+    \item $C_{i}$ to wektor kohezji dla agenta \textit{i}
+    \item $|N_{i}|$ to liczba sąsiadów agenta \textit{i}
+    \item $p_{j}$ to pozycja sąsiada \textit{j}
+    \item $p_{i}$ to pozycja agenta \textit{i}
+\end{itemize}
+
+\subsection{Wyrównanie}
+Celem wyrównania jest synchronizacja kierunku i prędkości ruchu agentów z ich sąsiadami. Każdy agent oblicza średni wektor prędkości sąsiadów i dostosowuje swoją prędkość w tym kierunku:
+\begin{equation}
+    \mathbf{A}_i = \frac{1}{|N_i|} \sum_{j \in N_i} \mathbf{v}_j - \mathbf{v}_i
+\end{equation}
+gdzie:
+\begin{itemize}
+    \item $A_{i}$ to wektor wyrównania dla agenta \textit{i}
+    \item $v_{j}$ to prędkość sąsiada \textit{j}
+    \item $v_{i}$ to prędkość agenta \textit{i}
+\end{itemize}
+
+\subsection{Wypadkowa}
+Powyższe trzy współczynniki przyczyniają się do stworzenia wektora siły całkowitej działającej na agenta. Są one przemnożone przez odpowiednie wagi, pozwalając na optymalizację algorytmu:
+\begin{equation}
+    \mathbf{F}_i = w_s \mathbf{S}_i + w_c \mathbf{C}_i + w_a \mathbf{A}_i
+\end{equation}
+gdzie $F_{i}$ to całkowita siła działająca na agenta \textit{i}, a $w_{s}$, $w_{c}$, $w_{a}$ to wagi odpowiednio dla separacji, kohezji oraz wyrównania. \\
+Po obliczeniu całkowitej siły, aktualizowane są pozycje i prędkości agentów zgodnie z zasadami dynamiki:
+\begin{equation}
+    \mathbf{v}_i(t+1) = \mathbf{v}_i(t) + \mathbf{F}_i
+\end{equation}
+\begin{equation}
+    \mathbf{p}_i(t+1) = \mathbf{p}_i(t) + \mathbf{v}_i(t+1)
+\end{equation}
+gdzie:
+\begin{itemize}
+    \item $v_{i}(t+1)$ to prędkość agenta \textit{i} w chwili \textit{t+1}
+    \item $p_{i}(t+1)$ to pozycja agenta \textit{i} w chwili \textit{t+1}
+    \item $v_{i}$ to prędkość agenta \textit{i} w chwili \textit{t}
+    \item $p_{i}$ to pozycja agenta \textit{i} w chwili \textit{t}
+\end{itemize}
+W oparciu o te zasady można przeprowadzić realistyczną symulację zachowań stadnych.
+\section{Pierwszy kamień milowy - stworzenie symulacji}
+Pierwszym celem projektu było stworzenie symulacji, w której będziemy mogli uruchamiać algorytm. Zdecydowano się na implementację w języku Python, z wykorzystaniem frameworka pyGame, udostępniającego wiele przydatnych narzędzi do tworzenia prostych animowanych wizualizacji.\\\\
+Podstawowa wersja symulacji tworzyła osobniki posiadające pewien zakres widzenia, który został na stałe zaszyty w kodzie programu. W oparciu o ten zakres, agenci mogli dostrzegać sąsiadów w celu łączenia się w grupy. Nie reagowali oni jednak początkowo na przeszkody - uderzenie w przeszkodę kończyło się śmiercią osobnika i usunięciem go z symulacji. Zdecydowaliśmy się jednak na zmianę tego podejścia już na początkowym etapie, ponieważ poprzez szybkie wymieranie agentów nie moglibyśmy obserwować rozwoju działania algorytmu w dłuższej perspektywie. W związku z tym, implementacja została dostosowana - osobniki, które zginęły na wskutek zderzenia z przeszkodą były automatycznie zastępowane nowymi osobnikami, generowanymi w losowej pozycji na ekranie. 
+\\\\Podstawowa wersja symulacji obejmowała również możliwość dynamicznego dodawania przeszkód na ekranie poprzez kliknięcie. Niemniej jednak, uznaliśmy że symulacja powinna działać całkowicie samoczynnie, w związku z czym zdecydowaliśmy, że przeszkody powinny być generowane losowo, w sposób deterministyczny przy uruchomieniu symulacji - w taki też sposób dostosowaliśmy program. 
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\linewidth]{obraz1.png}
+    \caption{Finalna wersja GUI symulacji}
+    \label{fig:enter-label}
+\end{figure}
+
+\section{Drugi kamień milowy - implementacja podstawowego algorytmu}
+Po zaakceptowaniu implementacji samej symulacji, przeszliśmy do wdrożenia algorytmu stadnego. \\\\
+W przypadku naszego projektu, agentami były ptaki. Program zaimplementowaliśmy w oparciu o paradygmat programowania obiektowego. Każdy z agentów posiadał zasięg widzenia sąsiadów, oraz zasięg widzenia przeszkód. W oparciu o te funkcjonalności, ptaki mogły z założenia unikać przeszkód oraz trzymać się w stadzie ze swoimi sąsiadami. Nominalny dobór parametrów na poziomie:
+\begin{itemize}
+    \item współczynnik kohezji - waga 0.02
+    \item współczynnik separacji - waga 0.01
+    \item współczynnik wyrównania - waga 0.02
+\end{itemize}
+pozwolił na bezproblemową realizację utrzymania ptaków w stadzie po tym, jak co najmniej dwa z nich znalazły się w zasięgu swojej wizji.\\\\
+Sytuacja wygląda podobnie w przypadku pojawienia się przeszkody w zasięgu wizji agenta. Gdy pojawiła się przeszkoda, wektor prędkości aktualizowany był taki, aby agent mógł ominąć przeszkodę. W przypadku samodzielnego lotu, agent całkowicie zmieniał kierunek, natomiast gdy poruszał się w stadzie, starał się ominąć przeszkodę utrzymując się jednocześnie w formacji.
+\section{Trzeci kamień milowy - optymalizacja algorytmu}
+Ostatnim etapem naszego projektu była optymalizacja algorytmu przez odpowiedni dobór parametrów kohezji, separacji oraz wyrównania. W ramach własnej inwencji dodaliśmy jeszcze jeden parametr, określający jak mocno zmiana wektora prędkości przy zauważeniu przeszkody ma wpływać na zmianę kierunku lotu agenta. \\\\
+Tak jak wspomniano wcześniej, dobrane wcześniej wagi przy współczynnikach działały dobrze. Dokonano jednak testów poprzez ich zmianę, co było widoczne w zachowaniu lecących w stadzie ptaków, które zależnie od parametrów trzymały się bliżej lub dalej od siebie, lub ich czas dołączenia do stada i wyrównania kierunku lotu był dłuższy lub krótszy. Zdecydowaliśmy się jednak przyjąć wspomniane w poprzedniej sekcji wielkości parametrów jako odpowiednie. \\\\
+Skupiliśmy się jednak na próbie optymalizacji parametru odpowiedzialnego za zmianę kierunku przy napotkaniu przeszkody. O ile w przypadku lotu pojedynczego osobnika przeszkody były bez problemu omijane, o tyle w przypadku lotu w grupie osobniki gorzej radziły sobie z wymijaniem przeszkód. Nawet przy ustawieniu większej wartości wspomnianego współczynnika omijania, agenci mieli tendencję do uderzania w przeszkodę ze względu na priorytetyzowanie zachowania stadnego ponad ominięcie przeszkody. Niestety, w tym przypadku optymalizacja parametru okazała się niewystarczająca - należałoby zaimiplementować dodatkowe mechanizmy, które umożliwiłyby agentom chwilowe przerywanie szyku w celu ominięcia przeszkody. 
+\section{Podsumowanie i wnioski}
+Podsumowując, udało się z powodzeniem zaimplementować i przetestować empirycznie podstawową wersję algorytmu stadnego. Agenci poprawnie gromadzili się w stada, posiadali zdolność do przyjęcia i utrzymania wspólnego kierunku lotu, oraz byli w stanie formować się w szyk. Niestety, algorytm ten nie uwzględniał omijania przeszkód przez agentów - w naturze, osobniki robią to instynktownie, co oczywiście nie jest odzwierciedlowe w symulacji. W celu poprawy należałoby zamiplementować dodatkowe mechanizmy, pozwalające agentom na ominięcie przeszkód napotykanych przez nich na torze lotu. \\
+
+Repozytorium kodu:
+\url{https://github.com/StaniszewskiA/SSIM-Proj}
+
+\end{document}
