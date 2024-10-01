@@ -69,6 +69,4 @@ def main():
     pygame.quit()
     
 if __name__ == "__main__":
-    #current_folder = os.path.dirname(os.path.abspath(__file__))
-    #run_pylint_on_folder(current_folder)
     main()

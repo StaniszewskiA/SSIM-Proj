@@ -1,11 +1,13 @@
-CC=gcc
-CFLAGS=-I./SDL2/include
-LDFLAGS=-L./src/lib -lmingw32 -lSDL2main -lSDL2
+CC = gcc
+CFLAGS = -I./src/include
+LDFLAGS = -L./src/lib -lmingw32 -lSDL2main -lSDL2
+TARGET = main
+SRC = main.c
 
-all: main
+all: $(TARGET)
 
-main: main.c
-	$(CC) -o main main.c $(CFLAGS) $(LDFLAGS)
+$(TARGET): $(SRC)
+	$(CC) -o $@ $< $(CFLAGS) $(LDFLAGS)
 
 clean:
-	rm -f main
+	rm -f $(TARGET)
